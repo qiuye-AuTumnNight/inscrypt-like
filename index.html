@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#120c08">
+<meta name="description" content="林间牌局 — 手机可玩的肉鸽卡牌对战：血祭召唤、天平定胜负，含关卡模式与无限模式。">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="林间牌局">
+<title>林间牌局 · 肉鸽卡牌</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app" id="app" data-screen="title">
+
+  <!-- ================= 标题 ================= -->
+  <section class="screen screen--title">
+    <div class="title__wrap">
+      <p class="title__eyebrow">ROGUELIKE DECKBUILDER</p>
+      <h1 class="title__main">林间牌局</h1>
+      <p class="title__sub">血祭召唤 · 天平定胜负</p>
+
+      <div class="mode-list">
+        <button type="button" class="mode" data-mode="stage">
+          <span class="mode__icon">🗺️</span>
+          <span class="mode__body">
+            <span class="mode__name">关卡模式</span>
+            <span class="mode__desc">三章征途，每章末尾有 Boss</span>
+          </span>
+        </button>
+        <button type="button" class="mode" data-mode="endless">
+          <span class="mode__icon">♾️</span>
+          <span class="mode__body">
+            <span class="mode__name">无限模式</span>
+            <span class="mode__desc">层数无尽，敌人越来越强</span>
+          </span>
+        </button>
+      </div>
+
+      <button type="button" class="btn btn--ghost" id="btnContinue" hidden>继续上次的牌局</button>
+
+      <p class="title__record" id="titleRecord"></p>
+      <button type="button" class="btn btn--ghost btn--help" id="btnHelp">印记 / 规则说明</button>
+      <p class="title__hint">建议竖屏使用 · 可添加到主屏幕离线游玩</p>
+    </div>
+  </section>
+
+  <!-- ================= 地图 ================= -->
+  <section class="screen screen--map">
+    <header class="topbar">
+      <div class="topbar__cell">
+        <span class="topbar__label" id="mapModeLabel">关卡</span>
+        <strong id="mapFloor">第 1 层</strong>
+      </div>
+      <div class="candles" id="candles" aria-label="剩余蜡烛"></div>
+      <button type="button" class="icon-btn" id="btnDeck" aria-label="查看牌堆">🂠</button>
+      <button type="button" class="icon-btn" id="btnHome" aria-label="返回游戏盒">🏠</button>
+    </header>
+
+    <div class="map">
+      <p class="map__title" id="mapTitle">选择前路</p>
+      <div class="map__choices" id="mapChoices"></div>
+      <div class="map__deck" id="mapDeckInfo"></div>
+    </div>
+  </section>
+
+  <!-- ================= 战斗 ================= -->
+  <section class="screen screen--battle">
+    <header class="topbar topbar--battle">
+      <div class="topbar__cell">
+        <span class="topbar__label" id="foeName">敌人</span>
+        <strong id="battleFloor">第 1 层</strong>
+      </div>
+      <button type="button" class="icon-btn" id="btnHome2" aria-label="返回游戏盒">🏠</button>
+    </header>
+
+    <div class="queue" id="queue" aria-label="敌人预排"></div>
+
+    <div class="board">
+      <div class="row row--enemy" id="enemyRow"></div>
+      <div class="scalebar" id="scalebar">
+        <div class="scalebar__track">
+          <span class="scalebar__mid"></span>
+          <i class="scalebar__fill" id="scaleFill"></i>
+          <span class="scalebar__mark" id="scaleMark"></span>
+        </div>
+        <span class="scalebar__label" id="scaleLabel">天平 · 0</span>
+      </div>
+      <div class="row row--player" id="playerRow"></div>
+    </div>
+
+    <div class="resources">
+      <span class="res"><span class="res__icon">🦴</span><b id="bones">0</b></span>
+      <span class="res"><span class="res__icon">🂠</span><b id="deckCount">0</b></span>
+      <span class="res res--hand"><span class="res__icon">✋</span><b id="handCount">0</b></span>
+    </div>
+
+    <div class="hand" id="hand"></div>
+
+    <div class="drawprompt" id="drawprompt" hidden>
+      <button type="button" class="btn btn--draw" id="btnDrawDeck">抽牌堆</button>
+      <button type="button" class="btn btn--draw" id="btnDrawSquirrel">🐿️ 松鼠堆</button>
+    </div>
+
+    <footer class="battle-actions">
+      <p class="battle-hint" id="battleHint">点手牌出牌</p>
+      <button type="button" class="btn btn--end" id="btnEndTurn">结束回合</button>
+    </footer>
+  </section>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="overlay__card">
+    <h2 class="overlay__title" id="ovTitle"></h2>
+    <p class="overlay__text" id="ovText"></p>
+    <div class="picker" id="picker" hidden></div>
+    <div class="overlay__actions" id="ovActions"></div>
+  </div>
+</div>
+
+<script src="./game.js"></script>
+</body>
+</html>
