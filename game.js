@@ -38,32 +38,45 @@
     spider: { name: '毒蛛', emoji: '🕷️', tribe: 'insect', blood: 2, atk: 1, hp: 4, sigils: ['poison'] },
     grizzly: { name: '灰熊', emoji: '🐻', tribe: 'beast', blood: 3, atk: 4, hp: 6, sigils: [] },
     hawk: { name: '苍鹰', emoji: '🦅', tribe: 'avian', blood: 3, atk: 3, hp: 3, sigils: ['airborne'] },
+    huntress: { name: '女猎手', emoji: '🏹', tribe: 'avian', blood: 2, atk: 2, hp: 2, sigils: ['airborne'] },
+    spearman: { name: '长矛手', emoji: '🗡️', tribe: 'beast', blood: 1, atk: 2, hp: 2, sigils: [] },
+    bearcub: { name: '熊崽', emoji: '🐻', tribe: 'beast', blood: 2, atk: 3, hp: 3, sigils: [] },
     skeleton: { name: '骷髅', emoji: '💀', tribe: 'undead', bones: 1, atk: 1, hp: 1, sigils: [] },
     bonedog: { name: '骨犬', emoji: '🐕', tribe: 'undead', bones: 3, atk: 2, hp: 3, sigils: [] },
     scarab: { name: '圣甲虫', emoji: '🪲', tribe: 'insect', bones: 3, atk: 1, hp: 5, sigils: ['grow'] },
-    gargoyle: { name: '石像鬼', emoji: '🗿', tribe: 'undead', bones: 4, atk: 1, hp: 5, sigils: ['stone'] },
+    gargoyle: { name: '石像鬼', emoji: '🗿', tribe: 'undead', bones: 4, atk: 1, hp: 4, sigils: ['stone'] },
     banshee: { name: '女妖', emoji: '👻', tribe: 'undead', bones: 4, atk: 2, hp: 2, sigils: ['airborne'] },
     lich: { name: '巫妖', emoji: '🧙', tribe: 'undead', bones: 6, atk: 3, hp: 4, sigils: ['draw'] },
   };
 
-  const STARTER = ['wolfcub', 'wolfcub', 'toad', 'viper', 'wolf', 'adder', 'elk', 'skeleton'];
+  // 玩家的牌池刻意强于敌人：敌人出牌是免费的，玩家每张血祭牌都要拆自己的场面，
+  // 不给玩家一点身材优势，节奏永远被压
+  const STARTER = ['spearman', 'wolfcub', 'wolfcub', 'toad', 'viper', 'wolf', 'elk', 'skeleton'];
 
-  const COMMON_POOL = ['wolfcub', 'toad', 'viper', 'wolf', 'adder', 'elk', 'mantis', 'raven', 'skeleton', 'bonedog', 'goat', 'spider'];
-  const RARE_POOL = ['grizzly', 'hawk', 'gargoyle', 'banshee', 'lich', 'scarab'];
+  const COMMON_POOL = ['spearman', 'spearman', 'wolfcub', 'toad', 'viper', 'wolf', 'adder', 'elk',
+    'mantis', 'raven', 'skeleton', 'bonedog', 'goat', 'spider', 'bearcub'];
+  const RARE_POOL = ['grizzly', 'hawk', 'gargoyle', 'banshee', 'lich', 'scarab', 'bearcub', 'huntress'];
 
+  // power 越大越强；按层数解锁，避免第 1 层就撞上后期牌池
+  // 注意：一个卡池里不能塞太多「空袭」——空袭无视阻挡直击天平，等于没有解
   const ENEMIES = [
-    { name: '林间狼群', emoji: '🐺', pool: ['wolfcub', 'wolfcub', 'wolf'], pattern: 'block' },
-    { name: '荒废墓园', emoji: '💀', pool: ['skeleton', 'skeleton', 'bonedog'], pattern: 'wide' },
-    { name: '瘴气毒沼', emoji: '🐍', pool: ['adder', 'toad', 'adder'], pattern: 'block' },
-    { name: '断崖鸦群', emoji: '🦅', pool: ['raven', 'raven', 'hawk'], pattern: 'wide' },
-    { name: '地下虫巢', emoji: '🕷️', pool: ['mantis', 'spider', 'scarab'], pattern: 'block' },
-    { name: '空心林地', emoji: '👻', pool: ['banshee', 'gargoyle', 'skeleton'], pattern: 'wide' },
+    { name: '林间狼群', emoji: '🐺', pool: ['wolfcub', 'wolfcub', 'toad'], pattern: 'block', power: 1 },
+    { name: '荒废墓园', emoji: '💀', pool: ['skeleton', 'skeleton', 'bonedog'], pattern: 'wide', power: 1 },
+    { name: '瘴气毒沼', emoji: '🐍', pool: ['adder', 'toad', 'adder'], pattern: 'block', power: 2 },
+    { name: '地下虫巢', emoji: '🕷️', pool: ['mantis', 'spider', 'scarab'], pattern: 'block', power: 3 },
+    { name: '断崖兽群', emoji: '🦅', pool: ['raven', 'wolfcub', 'toad'], pattern: 'wide', power: 3 },
+    { name: '空心林地', emoji: '👻', pool: ['banshee', 'gargoyle', 'skeleton'], pattern: 'wide', power: 4 },
+    { name: '狼群首领', emoji: '🐺', pool: ['wolf', 'wolf', 'grizzly'], pattern: 'block', power: 5 },
   ];
 
   const BOSSES = [
-    { name: '守林人', emoji: '🪓', pool: ['wolf', 'wolf', 'grizzly', 'wolf'], pattern: 'block', bonus: { atk: 1, hp: 2 } },
-    { name: '沼泽之主', emoji: '🐊', pool: ['spider', 'adder', 'grizzly', 'adder'], pattern: 'block', bonus: { atk: 1, hp: 3 } },
-    { name: '白骨君王', emoji: '☠️', pool: ['bonedog', 'banshee', 'lich', 'gargoyle'], pattern: 'wide', bonus: { atk: 2, hp: 3 } },
+    // Boss 的强度靠「牌池构成」而不是堆数值——之前给 Boss 加出 5/9 的灰熊，
+    // 新手卡组最大才 3/2，根本啃不动；卡池里也绝不能有空袭（无视阻挡 = 无解）
+    // Boss 用「血厚」而不是「攻高」制造压力：攻高会一回合把玩家打穿，
+    // 血厚只是难啃，玩家还能靠阻挡和换血周旋
+    { name: '守林人', emoji: '🪓', pool: ['wolf', 'wolfcub', 'wolf'], pattern: 'block', bonus: { atk: 0, hp: 2 } },
+    { name: '沼泽之主', emoji: '🐊', pool: ['adder', 'toad', 'adder'], pattern: 'block', bonus: { atk: 1, hp: 2 } },
+    { name: '白骨君王', emoji: '☠️', pool: ['bonedog', 'lich', 'gargoyle'], pattern: 'wide', bonus: { atk: 1, hp: 2 } },
   ];
 
   const NODES = {
@@ -261,22 +274,33 @@
     return BOSSES[Math.min(run.chapter - 1, BOSSES.length - 1)];
   }
 
+  // 按层数解锁敌人强度：第 1 层只出最弱的牌池，越往后越凶
+  function pickEnemy() {
+    const cap = 1 + run.floor / 2;
+    const pool = ENEMIES.filter((e) => e.power <= cap);
+    return pick(pool.length ? pool : [ENEMIES[0]]);
+  }
+
   function isBossFloor() {
     if (run.mode === 'endless') return run.floor % 5 === 0;
     return run.step >= CHAPTER_STEPS[Math.min(run.chapter - 1, CHAPTER_STEPS.length - 1)] - 1;
   }
 
-  function levelFor() {
-    // 关卡模式的强度增长比无限模式温和
-    if (run.mode === 'endless') return run.floor;
-    return 1 + (run.floor - 1) * 0.4;
+  function levelFor(kind) {
+    const f = run.floor;
+    // 关卡模式下 Boss 的强度靠牌池构成，数值只缓慢成长；
+    // 否则会出现「第 4 层就站一只 5/9 灰熊、新手最大才 3/2」这种打不动的局面。
+    // 无限模式则必须跟着层数走，不然 Boss 会比同层普通敌人还弱。
+    if (kind === 'boss') return run.mode === 'endless' ? f * 0.9 : 1 + (f - 1) * 0.2;
+    const base = run.mode === 'endless' ? f : 1 + (f - 1) * 0.5;
+    return kind === 'elite' ? base + 1.5 : base;
   }
 
-  // 敌人的强度主要来自「战场压力」而不是堆数值，否则玩家会被大墙堵死
+  // 强度来自「战场压力」而不是堆数值
   function bonusFor(level) {
     return {
-      atk: Math.min(4, Math.floor((level - 1) / 3)),
-      hp: Math.min(8, Math.floor((level - 1) * 0.4)),
+      atk: Math.min(4, Math.floor((level - 1) / 2.5)),
+      hp: Math.min(8, Math.floor((level - 1) * 0.55)),
     };
   }
 
@@ -384,9 +408,9 @@
     // 战斗
     const isBoss = type === 'boss';
     const isElite = type === 'elite';
-    const level = levelFor() + (isElite ? 1.5 : 0) + (isBoss ? 1.5 : 0);
-    const base = isBoss ? bossForFloor() : pick(ENEMIES);
-    const bonus = bonusFor(level);
+    const kind = isBoss ? 'boss' : isElite ? 'elite' : 'normal';
+    const bonus = bonusFor(levelFor(kind));
+    const base = isBoss ? bossForFloor() : pickEnemy();
     if (base.bonus) {
       bonus.atk += base.bonus.atk;
       bonus.hp += base.bonus.hp;
@@ -550,10 +574,14 @@
       over: false,
     };
     showScreen('battle');
+    dealOpeningHand();
     renderBattle();          // 先渲染，否则开战弹窗背后是一块没初始化的空板
     showOverlay({
       title: foe.emoji + ' ' + foe.name,
-      text: (foe.isBoss ? '<b>Boss 战</b><br>' : '') + '把天平推向自己这边 <b>' + SCALE_MAX + '</b> 格即可获胜。<br>先手由你开始。',
+      text: (foe.isBoss ? '<b>Boss 战</b><br>' : '')
+        + '已发给你 <b>' + battle.hand.length + '</b> 张开局手牌。<br>'
+        + '每回合还会白送 <b>1 只松鼠</b>（免费的路障与祭品）。<br>'
+        + '把天平推向自己这边 <b>' + SCALE_MAX + '</b> 格即可获胜，先手由你开始。',
       buttons: [{ label: '开战', onClick: () => { hideOverlay(); startTurn(); } }],
     });
   }
@@ -566,9 +594,23 @@
   function startTurn() {
     if (battle.over) return;
     battle.turn += 1;
+    // 每回合白送一只松鼠。敌人出牌是免费的，玩家如果连路障都要靠抽牌去换，
+    // 场面一清空就会陷入「抽什么都被打死」的死亡螺旋，永远攒不出祭品。
+    if (battle.hand.length < HAND_MAX) battle.hand.push(mkCard('squirrel'));
     battle.phase = 'draw';
     battle.selected = -1;
     renderBattle();
+  }
+
+  // 开局手牌：从牌库抽 2 张 + 1 只松鼠。
+  // 原作是「空手开局、每回合抽一张」，但手机上第一回合几乎无事可做；
+  // 而且血祭牌没有祭品根本打不出来 —— 那只松鼠就是给你当第一份祭品的。
+  function dealOpeningHand() {
+    for (let i = 0; i < 2; i++) {
+      const c = drawFromDeck();
+      if (c) battle.hand.push(c);
+    }
+    battle.hand.push(mkCard('squirrel'));
   }
 
   function drawFromDeck() {
@@ -741,6 +783,21 @@
     }
   }
 
+  // 敌人出牌是免费的，而玩家每张血祭牌都要拆掉自己的场面。
+  // 不给敌人一个站位上限，它会一路铺满 4 格把玩家压死——这是节奏压制的根源。
+  function enemyLaneCap() {
+    const f = run.floor;
+    if (f <= 4) return 2;
+    if (f <= 9) return 3;
+    return LANES;
+  }
+
+  function enemyCardCount() {
+    let n = 0;
+    for (let i = 0; i < LANES; i++) if (battle.enemy[i]) n += 1;
+    return n;
+  }
+
   function chooseLane() {
     const open = [];
     for (let i = 0; i < LANES; i++) if (!battle.enemy[i]) open.push(i);
@@ -797,7 +854,7 @@
     if (battle.scale <= -SCALE_MAX) return finishBattle(false);
 
     await sleep(180);
-    const lane = chooseLane();
+    const lane = enemyCardCount() >= enemyLaneCap() ? -1 : chooseLane();
     if (lane >= 0 && battle.queue.length) {
       battle.enemy[lane] = battle.queue.shift();
       if (battle.queue.length < 4) refillQueue();
@@ -1103,6 +1160,9 @@
   function init() {
     bind();
     renderTitle();
+    // 标记就绪：CSS 会在此之前把按钮置灰并屏蔽点击。
+    // 否则慢网络下 HTML 已经绘制、game.js 还没到，用户点了按钮毫无反应。
+    app.dataset.ready = '1';
 
     if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
       window.addEventListener('load', () => {

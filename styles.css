@@ -58,6 +58,18 @@ body {
   display: flex;
 }
 
+/* JS 就绪前屏蔽交互：慢网络下 HTML 已绘制但脚本还没到，
+   此时点击按钮不会有任何反应，不如直接置灰 */
+.app:not([data-ready]) .mode,
+.app:not([data-ready]) .btn,
+.app:not([data-ready]) .node,
+.app:not([data-ready]) .card--hand,
+.app:not([data-ready]) .slot,
+.app:not([data-ready]) .icon-btn {
+  opacity: .45;
+  pointer-events: none;
+}
+
 /* ================= 通用件 ================= */
 .btn {
   border: 0;
